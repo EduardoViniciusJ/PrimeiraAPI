@@ -30,3 +30,4 @@ C:\Users\Eduardo\source\repos\PrimeiraAPI\PrimeiraAPI\obj\Debug\net8.0\refint\Pr
 C:\Users\Eduardo\source\repos\PrimeiraAPI\PrimeiraAPI\obj\Debug\net8.0\PrimeiraAPI.pdb
 C:\Users\Eduardo\source\repos\PrimeiraAPI\PrimeiraAPI\obj\Debug\net8.0\PrimeiraAPI.genruntimeconfig.cache
 C:\Users\Eduardo\source\repos\PrimeiraAPI\PrimeiraAPI\obj\Debug\net8.0\ref\PrimeiraAPI.dll
+C:\Users\Eduardo\source\repos\PrimeiraAPI\PrimeiraAPI\obj\Debug\net8.0\PrimeiraAPI.sourcelink.json
