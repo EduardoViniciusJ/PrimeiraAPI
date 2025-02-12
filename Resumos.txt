@@ -1,0 +1,11 @@
+DataAnnotations : 
+
+Key - Identificado da chave primária
+ForeignKey - Especifica que a propriedade é usada a uma propriedade
+Required - Especifica que o valor é obrigatório 
+Table("nome") - Define o nome para qual a classe será mapeada 
+Column - Define a coluna na tabela para a qual a propriedade será mapeada 
+DataType - Associa um tipo de dado adicional a uma propriedade 
+NotMapped- Exclui a propriedade do mapeamento 
+StringLength - Define o tamanho mínimo e máximo permitido para o tipo
+
