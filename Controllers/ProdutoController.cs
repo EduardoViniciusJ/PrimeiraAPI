@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PrimeiraAPI.Context;
 using PrimeiraAPI.Models;
 
@@ -28,7 +29,7 @@ namespace PrimeiraAPI.Controllers
         }
 
         // Acha o produto pelo seu Id 
-        [HttpGet("{id:int}")]
+        [HttpGet("{id:int}", Name = "ObterProduto")]
         public ActionResult<Produto> Get(int id)
         {
             var produto = _context.Produtos.FirstOrDefault(p => p.ProdutoId == id);
@@ -36,11 +37,52 @@ namespace PrimeiraAPI.Controllers
             {
                 return NotFound();
             }
-            return produto; 
+            return Ok(produto);
         }
 
 
+        [HttpPost]
+        public ActionResult Post(Produto produto)
+        {
+            if (produto is null)
+            {
+                return BadRequest("Dados inválidos"); // Se os dados da requesicao forem invalidos retorna 400
+            }
 
+            _context.Produtos.Add(produto);
+            _context.SaveChanges();
+            return new CreatedAtRouteResult("ObterProduto", new { id = produto.ProdutoId }, produto);  // cria um link para rota, retorna 201 do produto criado
+        }
+
+
+        // Atualiza todas as propriedades do produto pelo seu id 
+        [HttpPut("{id:int}")]
+        public ActionResult Put(int id, Produto produto)
+        {
+            if (id != produto.ProdutoId)
+            {
+                return BadRequest("Dados inválidos");
+            }
+
+            _context.Entry(produto).State = EntityState.Modified; // Modifica pelo EF que o objeto foi alterado
+            _context.SaveChanges();
+
+            return Ok(produto);
+        }
+
+        [HttpDelete("{id:int}")]
+        public IActionResult Delete(int id)
+        {
+            var produto = _context.Produtos.FirstOrDefault(p => p.ProdutoId == id);
+            if (produto is null)
+            {
+                return NotFound("Produto não localizado");  
+            }
+            _context.Produtos.Remove(produto);
+            _context.SaveChanges();
+
+            return Ok(produto);
+        }
 
 
 
