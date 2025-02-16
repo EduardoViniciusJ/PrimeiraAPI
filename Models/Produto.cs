@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace PrimeiraAPI.Models
 {
@@ -27,6 +28,8 @@ namespace PrimeiraAPI.Models
         public DateTime DataCadastro { get; set; }
 
         // propriedade de navegacao
+
+        [JsonIgnore]
         public int CategoriaId { get; set; }
         public Categoria? Categoria { get; set; }
 
