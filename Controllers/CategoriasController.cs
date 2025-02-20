@@ -22,7 +22,7 @@ namespace PrimeiraAPI.Controllers
         public ActionResult<IEnumerable<Categoria>> GetCategoriasProdutos()
         {
             // Include permite carregar entidades relacionadas
-            return _context.Categorias.Include(p=> p.Produtos).ToList();  
+            return _context.Categorias.Include(p=> p.Produtos).Where(x => x.CategoriaId <= 5).ToList();  
         }
 
         [HttpGet]

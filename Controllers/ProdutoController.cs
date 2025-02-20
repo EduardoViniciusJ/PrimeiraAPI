@@ -5,7 +5,7 @@ using PrimeiraAPI.Models;
 
 namespace PrimeiraAPI.Controllers
 {
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class ProdutoController : Controller
     {
@@ -20,13 +20,49 @@ namespace PrimeiraAPI.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<Produto>> Get()
         {
-            var produtos = _context.Produtos.ToList();
-            if (produtos is null)
+            try
             {
-                return NotFound("Produtos nao encontrados");
+                var produtos = _context.Produtos.AsNoTracking().ToList();
+                if (produtos is null)
+                {
+                    return NotFound("Produtos nao encontrados");
+                }
+                return produtos;
             }
-            return produtos;
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status505HttpVersionNotsupported,"Ocorreu um problema");
+            }
         }
+
+
+        // Restrição rota exemplo
+        [HttpGet("{valor:alpha:length(5)}")]
+        public ActionResult<Produto> Get2(string valor)
+        {
+            var teste = valor;
+
+            return Ok(valor);
+        }
+
+
+
+
+
+
+        [HttpGet("/primeiro")] // ignora o routeamento padrão
+        public ActionResult<Produto> GetPrimeiro(string valor)
+        {
+            var teste = valor;
+            var produto = _context.Produtos.FirstOrDefault();
+            if (produto is null)
+            {
+                return NotFound();
+            }
+            return Ok(produto);
+        }
+
+
 
         // Acha o produto pelo seu Id 
         [HttpGet("{id:int}", Name = "ObterProduto")]
