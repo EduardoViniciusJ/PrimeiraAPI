@@ -45,11 +45,6 @@ namespace PrimeiraAPI.Controllers
             return Ok(valor);
         }
 
-
-
-
-
-
         [HttpGet("/primeiro")] // ignora o routeamento padrão
         public ActionResult<Produto> GetPrimeiro(string valor)
         {

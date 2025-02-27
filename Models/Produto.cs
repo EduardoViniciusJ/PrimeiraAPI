@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using PrimeiraAPI.Validations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
@@ -9,9 +10,15 @@ namespace PrimeiraAPI.Models
     {
         [Key]
         public int ProdutoId { get; set; }
-        [Required]
-        [StringLength(80)]
+
+        [Required(ErrorMessage = "O nome é obrigatório")]
+        [StringLength(80, ErrorMessage = "O nome deve ter no máximo {1} e no mínimo {2} caracteres",
+        MinimumLength = 5)]
+        [PrimeiraLetraMaiuscula]
         public string? Nome { get; set; }
+
+
+
         [Required]
         [StringLength(300)]
         public string? Descricao { get; set; }
@@ -21,7 +28,7 @@ namespace PrimeiraAPI.Models
         [Required]
         [StringLength(300)]
         public string? ImagemUrl { get; set; }
-            
+
 
 
         public float Estoque { get; set; }
