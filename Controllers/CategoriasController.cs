@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using PrimeiraAPI.Context;
+using PrimeiraAPI.Filters;
 using PrimeiraAPI.Models;
 
 namespace PrimeiraAPI.Controllers
@@ -21,6 +22,7 @@ namespace PrimeiraAPI.Controllers
         }
 
         [HttpGet("LerArquivoConfiguracao")]
+        [ServiceFilter(typeof(ApiLogginFilter))]
         public string GetValores()
         {
             var valor1 = _configurations["chave1"];
@@ -34,9 +36,10 @@ namespace PrimeiraAPI.Controllers
 
 
         [HttpGet("produtos")]
+        [ServiceFilter(typeof(ApiLogginFilter))]
         public ActionResult<IEnumerable<Categoria>> GetCategoriasProdutos()
         {
-            // Include permite carregar entidades relacionadas
+           
             return _context.Categorias.Include(p=> p.Produtos).Where(x => x.CategoriaId <= 5).ToList();  
         }
 

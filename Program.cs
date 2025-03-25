@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PrimeiraAPI.Context;
 using PrimeiraAPI.Extensions;
+using PrimeiraAPI.Filters;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +13,8 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 
 
 
+
+builder.Services.AddScoped<ApiLogginFilter>();
 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
