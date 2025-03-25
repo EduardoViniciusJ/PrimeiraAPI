@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PrimeiraAPI.Context;
+using PrimeiraAPI.Extensions;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,16 +21,14 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-
-
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
+    app.UseSwagger(); 
     app.UseSwaggerUI();
+    app.ConfigureExceptionHandler();
 }
 
 app.UseHttpsRedirection();

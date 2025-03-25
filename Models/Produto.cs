@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 namespace PrimeiraAPI.Models
 {
     [Table("Produtos")]
-    public class Produto : IValidatableObject
+    public class Produto : IValidatableObject 
     {
         [Key]
         public int ProdutoId { get; set; }

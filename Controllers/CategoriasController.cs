@@ -12,11 +12,26 @@ namespace PrimeiraAPI.Controllers
     public class CategoriasController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly IConfiguration _configurations;
 
-        public CategoriasController(AppDbContext context)
+        public CategoriasController(AppDbContext context, IConfiguration configuration)
         {
+            _configurations = configuration;
             _context = context;
         }
+
+        [HttpGet("LerArquivoConfiguracao")]
+        public string GetValores()
+        {
+            var valor1 = _configurations["chave1"];
+            var valor2 = _configurations["chave2"];
+            var secao1 = _configurations["secao1:chave2"];
+
+            return $"Chave1 = {valor1} Chave2 = {valor2} Seção1 = {secao1}";
+        }
+
+
+
 
         [HttpGet("produtos")]
         public ActionResult<IEnumerable<Categoria>> GetCategoriasProdutos()
@@ -34,6 +49,8 @@ namespace PrimeiraAPI.Controllers
         [HttpGet("{id:int}", Name = "ObterCategoria")]
         public ActionResult<Categoria> Get(int id)
         {
+            throw new Exception("Exceção ao retorna  o produto pelo Id");
+
             var categoria = _context.Categorias.FirstOrDefault(x => x.CategoriaId == id);
             if (categoria is null)
             {
