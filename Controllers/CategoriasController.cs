@@ -9,16 +9,18 @@ namespace PrimeiraAPI.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-
     public class CategoriasController : Controller
     {
         private readonly AppDbContext _context;
         private readonly IConfiguration _configurations;
+        private readonly ILogger _logger;
 
-        public CategoriasController(AppDbContext context, IConfiguration configuration)
+
+        public CategoriasController(AppDbContext context, IConfiguration configuration, ILogger<CategoriasController> logger)
         {
             _configurations = configuration;
             _context = context;
+            _logger = logger;
         }
 
         [HttpGet("LerArquivoConfiguracao")]
@@ -32,14 +34,11 @@ namespace PrimeiraAPI.Controllers
             return $"Chave1 = {valor1} Chave2 = {valor2} Seção1 = {secao1}";
         }
 
-
-
-
         [HttpGet("produtos")]
         [ServiceFilter(typeof(ApiLogginFilter))]
         public ActionResult<IEnumerable<Categoria>> GetCategoriasProdutos()
         {
-           
+            _logger.LogInformation("==========GET API==========");
             return _context.Categorias.Include(p=> p.Produtos).Where(x => x.CategoriaId <= 5).ToList();  
         }
 
@@ -52,8 +51,6 @@ namespace PrimeiraAPI.Controllers
         [HttpGet("{id:int}", Name = "ObterCategoria")]
         public ActionResult<Categoria> Get(int id)
         {
-            throw new Exception("Exceção ao retorna  o produto pelo Id");
-
             var categoria = _context.Categorias.FirstOrDefault(x => x.CategoriaId == id);
             if (categoria is null)
             {

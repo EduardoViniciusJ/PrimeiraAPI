@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using PrimeiraAPI.Context;
 using PrimeiraAPI.Extensions;
 using PrimeiraAPI.Filters;
+using PrimeiraAPI.Logging;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +16,15 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 
 
 builder.Services.AddScoped<ApiLogginFilter>();
+
+
+// Adicionando um provedor de logging personalizado criado aos provedores de logging do ASP .NET Core
+builder.Logging.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderConfiguration
+{
+    LogLevel = LogLevel.Information,
+}));
+
+
 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
