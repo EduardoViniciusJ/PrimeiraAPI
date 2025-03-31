@@ -51,12 +51,14 @@ namespace PrimeiraAPI.Controllers
         [HttpGet("{id:int}", Name = "ObterCategoria")]
         public ActionResult<Categoria> Get(int id)
         {
-            var categoria = _context.Categorias.FirstOrDefault(x => x.CategoriaId == id);
+            throw new ArgumentException("Ocorreu um erro no tratamento do request");
+
+            /* var categoria = _context.Categorias.FirstOrDefault(x => x.CategoriaId == id);
             if (categoria is null)
             {
                 return NotFound();
             }
-            return Ok(categoria);
+            return Ok(categoria); */
         }
 
         [HttpPost]
