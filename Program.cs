@@ -21,10 +21,6 @@ builder.Services.AddControllers(options =>
 
 
 
-
-
-
-
 builder.Services.AddScoped<ApiLogginFilter>();
 
 
