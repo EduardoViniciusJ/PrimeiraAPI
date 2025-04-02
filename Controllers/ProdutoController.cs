@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using PrimeiraAPI.Context;
 using PrimeiraAPI.Models;
+using PrimeiraAPI.Repositories;
 
 namespace PrimeiraAPI.Controllers
 {
@@ -9,30 +10,26 @@ namespace PrimeiraAPI.Controllers
     [ApiController]
     public class ProdutoController : Controller
     {
-        private readonly AppDbContext _context;
+        private readonly IProdutoReposity _repository;
 
-        public ProdutoController(AppDbContext context)
+        public ProdutoController(IProdutoReposity reposity)
         {
-            _context = context;
+            _repository = reposity;
         }
+
 
         // Pega a lista de todos os produtos
         [HttpGet]
         public ActionResult<IEnumerable<Produto>> Get()
         {
-            try
+            var produtos = _repository.GetProdutos().ToList();
+            if (produtos is null)
             {
-                var produtos = _context.Produtos.AsNoTracking().ToList();
-                if (produtos is null)
-                {
-                    return NotFound("Produtos nao encontrados");
-                }
-                return produtos;
+                return NotFound();
             }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status505HttpVersionNotsupported,"Ocorreu um problema");
-            }
+
+            return Ok(produtos);
+       
         }
 
 
@@ -45,29 +42,19 @@ namespace PrimeiraAPI.Controllers
             return Ok(valor);
         }
 
-        [HttpGet("/primeiro")] // ignora o routeamento padrão
-        public ActionResult<Produto> GetPrimeiro(string valor)
-        {
-            var teste = valor;
-            var produto = _context.Produtos.FirstOrDefault();
-            if (produto is null)
-            {
-                return NotFound();
-            }
-            return Ok(produto);
-        }
-
 
 
         // Acha o produto pelo seu Id 
         [HttpGet("{id:int}", Name = "ObterProduto")]
         public ActionResult<Produto> Get(int id)
         {
-            var produto = _context.Produtos.FirstOrDefault(p => p.ProdutoId == id);
+            var produto = _repository.GetProduto(id);
+
             if (produto is null)
             {
-                return NotFound();
+                return NotFound("Produto não encontrado");
             }
+
             return Ok(produto);
         }
 
@@ -77,12 +64,14 @@ namespace PrimeiraAPI.Controllers
         {
             if (produto is null)
             {
-                return BadRequest("Dados inválidos"); // Se os dados da requesicao forem invalidos retorna 400
+                return BadRequest();
             }
 
-            _context.Produtos.Add(produto);
-            _context.SaveChanges();
-            return new CreatedAtRouteResult("ObterProduto", new { id = produto.ProdutoId }, produto);  // cria um link para rota, retorna 201 do produto criado
+            var novoProduto = _repository.Create(produto);
+
+            return new CreatedAtRouteResult("ObterProduto", new { id = novoProduto.ProdutoId }, produto);
+
+
         }
 
 
@@ -92,34 +81,36 @@ namespace PrimeiraAPI.Controllers
         {
             if (id != produto.ProdutoId)
             {
-                return BadRequest("Dados inválidos");
+                return BadRequest();
             }
 
-            _context.Entry(produto).State = EntityState.Modified; // Modifica pelo EF que o objeto foi alterado
-            _context.SaveChanges();
+            bool atualizado = _repository.Update(produto);
 
-            return Ok(produto);
+            if (atualizado)
+            {
+                return Ok(produto);
+            }
+            else
+            {
+                return StatusCode(500, $"Falha ao atualizar o produto id = {id}");
+            }
         }
 
         [HttpDelete("{id:int}")]
         public IActionResult Delete(int id)
         {
-            var produto = _context.Produtos.FirstOrDefault(p => p.ProdutoId == id);
-            if (produto is null)
+            bool deletado = _repository.Delete(id);
+            if (deletado)
             {
-                return NotFound("Produto não localizado");  
+                return Ok($"Produto de id={id} foi excluido");
             }
-            _context.Produtos.Remove(produto);
-            _context.SaveChanges();
-
-            return Ok(produto);
+            else
+            {
+                return StatusCode(500, $"Falha ao atualizar o excluir de id={id}");
+            }
         }
 
 
-
-
-
-
-
     }
+
 }

@@ -3,6 +3,7 @@ using PrimeiraAPI.Context;
 using PrimeiraAPI.Extensions;
 using PrimeiraAPI.Filters;
 using PrimeiraAPI.Logging;
+using PrimeiraAPI.Repositories;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +23,9 @@ builder.Services.AddControllers(options =>
 
 
 builder.Services.AddScoped<ApiLogginFilter>();
+builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
+builder.Services.AddScoped<IProdutoReposity, ProdutoRepository>();
+
 
 
 // Adicionando um provedor de logging personalizado criado aos provedores de logging do ASP .NET Core
@@ -29,6 +33,9 @@ builder.Logging.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderCon
 {
     LogLevel = LogLevel.Information,
 }));
+
+
+
 
 
 

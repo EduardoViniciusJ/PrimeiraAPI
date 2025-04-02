@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace PrimeiraAPI.Models
 {
@@ -22,6 +23,7 @@ namespace PrimeiraAPI.Models
         public string? ImageUrl { get; set; }
 
         // ICollection é uma interface que representa um grupo de coisas, uma colecao generica com add, remove, count, clear.
+        [JsonIgnore]
         public ICollection<Produto>? Produtos { get; set; }
     }
 }

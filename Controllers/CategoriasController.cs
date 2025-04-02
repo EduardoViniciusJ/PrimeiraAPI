@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using PrimeiraAPI.Context;
 using PrimeiraAPI.Filters;
 using PrimeiraAPI.Models;
+using PrimeiraAPI.Repositories;
 
 namespace PrimeiraAPI.Controllers
 {
@@ -11,54 +12,37 @@ namespace PrimeiraAPI.Controllers
     [ApiController]
     public class CategoriasController : Controller
     {
-        private readonly AppDbContext _context;
+
+        private readonly ICategoriaRepository _repository;
+
         private readonly IConfiguration _configurations;
         private readonly ILogger _logger;
 
 
-        public CategoriasController(AppDbContext context, IConfiguration configuration, ILogger<CategoriasController> logger)
+        public CategoriasController(ICategoriaRepository repository, IConfiguration configuration, ILogger<CategoriasController> logger)
         {
             _configurations = configuration;
-            _context = context;
+            _repository = repository;
             _logger = logger;
-        }
-
-        [HttpGet("LerArquivoConfiguracao")]
-        [ServiceFilter(typeof(ApiLogginFilter))]
-        public string GetValores()
-        {
-            var valor1 = _configurations["chave1"];
-            var valor2 = _configurations["chave2"];
-            var secao1 = _configurations["secao1:chave2"];
-
-            return $"Chave1 = {valor1} Chave2 = {valor2} Seção1 = {secao1}";
-        }
-
-        [HttpGet("produtos")]
-        [ServiceFilter(typeof(ApiLogginFilter))]
-        public ActionResult<IEnumerable<Categoria>> GetCategoriasProdutos()
-        {
-            _logger.LogInformation("==========GET API==========");
-            return _context.Categorias.Include(p=> p.Produtos).Where(x => x.CategoriaId <= 5).ToList();  
         }
 
         [HttpGet]
         public ActionResult<IEnumerable<Categoria>> Get()
         {
-            return _context.Categorias.ToList();
+            var categorias = _repository.GetCategorias();
+            return Ok(categorias);
         }
 
         [HttpGet("{id:int}", Name = "ObterCategoria")]
         public ActionResult<Categoria> Get(int id)
         {
-            throw new ArgumentException("Ocorreu um erro no tratamento do request");
-
-            /* var categoria = _context.Categorias.FirstOrDefault(x => x.CategoriaId == id);
-            if (categoria is null)
+            var categoria = _repository.GetCategoria(id);
+            if(categoria is null)
             {
-                return NotFound();
+                _logger.LogWarning($"Categoria com o id = {id} não encontrada...");
+                return NotFound($"Categoria com  o id = {id} não encontrada...");
             }
-            return Ok(categoria); */
+            return Ok(categoria);   
         }
 
         [HttpPost]
@@ -66,13 +50,13 @@ namespace PrimeiraAPI.Controllers
         {
             if (categoria is null)
             {
-                return BadRequest();
+                _logger.LogWarning($"Dados inválidos...");
+                return BadRequest("Dados inváldidos");
             }
 
-            _context.Add(categoria);
-            _context.SaveChanges();
-
-            return new CreatedAtRouteResult("ObterCategoria", new { id = categoria.CategoriaId }, categoria);
+             var categoriaCriada = _repository.Create(categoria);
+             
+            return new CreatedAtRouteResult("ObterCategoria", new { id = categoriaCriada.CategoriaId }, categoriaCriada);
         }
 
         [HttpPut("{id:int}")]
@@ -80,29 +64,28 @@ namespace PrimeiraAPI.Controllers
         {
             if (id != categoria.CategoriaId)
             {
-                return BadRequest();
+                _logger.LogWarning($"Dados inválidos..");
+                return BadRequest("Dados inválidos");
             }
 
-            _context.Entry(categoria).State = EntityState.Modified;
-            _context.SaveChanges();
-
+            _repository.Update(categoria);
             return Ok(categoria);
         }
 
         [HttpDelete("{id:int}")]
         public ActionResult Delete(int id)
         {
-            var categoria = _context.Categorias.FirstOrDefault(x => x.CategoriaId == id);
+            var categoria = _repository.GetCategoria(id);
 
             if (categoria is null)
             {
+                _logger.LogWarning($"Categoria com o {id} não encontrada...");
                 return NotFound();
             }
 
-            _context.Remove(categoria);
-            _context.SaveChanges();
+            var categoriaExcluida = _repository.Detele(id);
 
-            return Ok(categoria);
+            return Ok(categoriaExcluida);
         }
     }
 }
