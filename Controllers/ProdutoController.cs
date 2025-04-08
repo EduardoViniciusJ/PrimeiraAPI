@@ -10,9 +10,9 @@ namespace PrimeiraAPI.Controllers
     [ApiController]
     public class ProdutoController : Controller
     {
-        private readonly IProdutoReposity _repository;
+        private readonly IProdutoRepository _repository;
 
-        public ProdutoController(IProdutoReposity reposity)
+        public ProdutoController(IProdutoRepository reposity)
         {
             _repository = reposity;
         }

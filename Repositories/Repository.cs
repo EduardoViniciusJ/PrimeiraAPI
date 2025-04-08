@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PrimeiraAPI.Context;
+using PrimeiraAPI.Repositories.Interfaces;
 using System.Linq.Expressions;
 
 namespace PrimeiraAPI.Repositories
@@ -13,7 +14,6 @@ namespace PrimeiraAPI.Repositories
         {
             _context = context;
         }
-
         public IEnumerable<T> GetAll()
         {
            return _context.Set<T>().ToList();
@@ -24,7 +24,6 @@ namespace PrimeiraAPI.Repositories
            return _context.Set<T>().FirstOrDefault(predicate);
            
         }
-
         public T Create(T entity)
         {
             _context.Set<T>().Add(entity);  
