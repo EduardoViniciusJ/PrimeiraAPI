@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using PrimeiraAPI.Context;
 using PrimeiraAPI.Models;
 using PrimeiraAPI.Repositories;
+using PrimeiraAPI.Repositories.Interfaces;
 
 namespace PrimeiraAPI.Controllers
 {
@@ -10,11 +11,24 @@ namespace PrimeiraAPI.Controllers
     [ApiController]
     public class ProdutoController : Controller
     {
-        private readonly IProdutoRepository _repository;
+        private readonly IProdutoRepository _produtoRepository;
+        private readonly IRepository<Produto> _repository;
 
-        public ProdutoController(IProdutoRepository reposity)
+        public ProdutoController(IProdutoRepository produtoRepository, IRepository<Produto> repository)
         {
-            _repository = reposity;
+            _produtoRepository = produtoRepository;
+            _repository = repository;
+        }
+
+        [HttpGet("produtos/ {id}")]
+        public ActionResult<IEnumerable<Produto>> GetProdutosCategorias(int id)
+        {
+            var produtos = _produtoRepository.GetProdutoPorCategoria(id);
+            if (produtos is null)
+            {
+                return NotFound();
+            }
+            return Ok(produtos);
         }
 
 
@@ -22,7 +36,7 @@ namespace PrimeiraAPI.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<Produto>> Get()
         {
-            var produtos = _repository.GetProdutos().ToList();
+            var produtos = _repository.GetAll();
             if (produtos is null)
             {
                 return NotFound();
@@ -32,23 +46,11 @@ namespace PrimeiraAPI.Controllers
        
         }
 
-
-        // Restrição rota exemplo
-        [HttpGet("{valor:alpha:length(5)}")]
-        public ActionResult<Produto> Get2(string valor)
-        {
-            var teste = valor;
-
-            return Ok(valor);
-        }
-
-
-
         // Acha o produto pelo seu Id 
         [HttpGet("{id:int}", Name = "ObterProduto")]
         public ActionResult<Produto> Get(int id)
         {
-            var produto = _repository.GetProduto(id);
+            var produto = _repository.Get(x => x.ProdutoId == id);  
 
             if (produto is null)
             {
@@ -84,30 +86,22 @@ namespace PrimeiraAPI.Controllers
                 return BadRequest();
             }
 
-            bool atualizado = _repository.Update(produto);
-
-            if (atualizado)
-            {
-                return Ok(produto);
-            }
-            else
-            {
-                return StatusCode(500, $"Falha ao atualizar o produto id = {id}");
-            }
+            var produtoAtualizado = _repository.Update(produto);
+            return Ok(produtoAtualizado);
         }
 
         [HttpDelete("{id:int}")]
         public IActionResult Delete(int id)
         {
-            bool deletado = _repository.Delete(id);
-            if (deletado)
+            var produto = _repository.Get(x => x.ProdutoId == id);
+            if(produto is null)
             {
-                return Ok($"Produto de id={id} foi excluido");
+                return NotFound("Produto não encontrado");  
             }
-            else
-            {
-                return StatusCode(500, $"Falha ao atualizar o excluir de id={id}");
-            }
+            
+            _repository.Delete(produto);
+            return Ok(produto);
+
         }
 
 
