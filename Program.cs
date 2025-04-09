@@ -3,6 +3,7 @@ using PrimeiraAPI.Context;
 using PrimeiraAPI.Extensions;
 using PrimeiraAPI.Filters;
 using PrimeiraAPI.Logging;
+using PrimeiraAPI.Repositories;
 using PrimeiraAPI.Repositories.Interfaces;
 using System.Text.Json.Serialization;
 
@@ -25,7 +26,8 @@ builder.Services.AddControllers(options =>
 builder.Services.AddScoped<ApiLogginFilter>();
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
-builder.Services.AddScoped(typeof(IRepository<>), typeof(IRepository<>));
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Respository<>));
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 
 

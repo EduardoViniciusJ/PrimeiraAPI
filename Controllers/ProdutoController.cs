@@ -11,19 +11,17 @@ namespace PrimeiraAPI.Controllers
     [ApiController]
     public class ProdutoController : Controller
     {
-        private readonly IProdutoRepository _produtoRepository;
-        private readonly IRepository<Produto> _repository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ProdutoController(IProdutoRepository produtoRepository, IRepository<Produto> repository)
+        public ProdutoController(IUnitOfWork unitOfWork)
         {
-            _produtoRepository = produtoRepository;
-            _repository = repository;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpGet("produtos/ {id}")]
         public ActionResult<IEnumerable<Produto>> GetProdutosCategorias(int id)
         {
-            var produtos = _produtoRepository.GetProdutoPorCategoria(id);
+            var produtos = _unitOfWork.ProdutoRepository.GetProdutoPorCategoria(id);
             if (produtos is null)
             {
                 return NotFound();
@@ -36,7 +34,7 @@ namespace PrimeiraAPI.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<Produto>> Get()
         {
-            var produtos = _repository.GetAll();
+            var produtos = _unitOfWork.ProdutoRepository.GetAll();
             if (produtos is null)
             {
                 return NotFound();
@@ -50,7 +48,7 @@ namespace PrimeiraAPI.Controllers
         [HttpGet("{id:int}", Name = "ObterProduto")]
         public ActionResult<Produto> Get(int id)
         {
-            var produto = _repository.Get(x => x.ProdutoId == id);  
+            var produto = _unitOfWork.ProdutoRepository.Get(x => x.ProdutoId == id);  
 
             if (produto is null)
             {
@@ -69,7 +67,8 @@ namespace PrimeiraAPI.Controllers
                 return BadRequest();
             }
 
-            var novoProduto = _repository.Create(produto);
+            var novoProduto = _unitOfWork.ProdutoRepository.Create(produto);
+            _unitOfWork.Commit();
 
             return new CreatedAtRouteResult("ObterProduto", new { id = novoProduto.ProdutoId }, produto);
 
@@ -86,20 +85,23 @@ namespace PrimeiraAPI.Controllers
                 return BadRequest();
             }
 
-            var produtoAtualizado = _repository.Update(produto);
+            var produtoAtualizado = _unitOfWork.ProdutoRepository.Update(produto);
+            _unitOfWork.Commit();
+
             return Ok(produtoAtualizado);
         }
 
         [HttpDelete("{id:int}")]
         public IActionResult Delete(int id)
         {
-            var produto = _repository.Get(x => x.ProdutoId == id);
+            var produto = _unitOfWork.ProdutoRepository.Get(x => x.ProdutoId == id);
             if(produto is null)
             {
                 return NotFound("Produto não encontrado");  
             }
             
-            _repository.Delete(produto);
+            _unitOfWork.ProdutoRepository.Delete(produto);
+            _unitOfWork.Commit();
             return Ok(produto);
 
         }
