@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Humanizer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using NuGet.Protocol.Core.Types;
 using PrimeiraAPI.Context;
 using PrimeiraAPI.DTOs;
+using PrimeiraAPI.DTOs.Mappings;
 using PrimeiraAPI.Filters;
 using PrimeiraAPI.Models;
 using PrimeiraAPI.Repositories;
@@ -33,17 +35,7 @@ namespace PrimeiraAPI.Controllers
         {
             var categorias = _unitOfWork.CategoriaRepository.GetAll();
 
-            var categoriasDto = new List<CategoriaDTO>();
-            foreach (var categoria in categorias)
-            {
-                var categoriaDto = new CategoriaDTO()
-                {
-                    CategoriaId = categoria.CategoriaId,
-                    Nome = categoria.Nome,
-                    ImageUrl = categoria.ImageUrl
-                };
-                categoriasDto.Add(categoriaDto);
-            }
+            var categoriasDto = categorias.ToCategoriaDTOs();
             
             return Ok(categoriasDto);
         }
@@ -58,12 +50,7 @@ namespace PrimeiraAPI.Controllers
                 return NotFound($"Categoria com  o id = {id} não encontrada...");
             }
 
-            var categoriaDto = new CategoriaDTO()
-            {
-                CategoriaId = categoria.CategoriaId,
-                Nome = categoria.Nome,
-                ImageUrl = categoria.ImageUrl
-            };
+            var categoriaDto = categoria.ToCategoriaDTO();
 
             return Ok(categoriaDto);   
         }
@@ -77,22 +64,12 @@ namespace PrimeiraAPI.Controllers
                 return BadRequest("Dados inváldidos");
             }
 
-            var categoria = new Categoria()
-            {
-                CategoriaId = categoriaDto.CategoriaId,
-                Nome = categoriaDto.Nome,
-                ImageUrl = categoriaDto.ImageUrl
-            };
+            var categoria = categoriaDto.ToCategoria();
 
              var categoriaCriada = _unitOfWork.CategoriaRepository.Create(categoria);
             _unitOfWork.Commit();
 
-            var novacategoriaDto = new CategoriaDTO()
-            {
-                CategoriaId = categoriaCriada.CategoriaId,
-                Nome = categoriaCriada.Nome,
-                ImageUrl = categoriaCriada.ImageUrl
-            };
+            var novaCategoriaDto =  categoriaCriada.ToCategoriaDTO();
              
             return new CreatedAtRouteResult("ObterCategoria", new { id = categoriaCriada.CategoriaId }, categoriaCriada);
         }
@@ -106,23 +83,13 @@ namespace PrimeiraAPI.Controllers
                 return BadRequest("Dados inválidos");
             }
 
-            var categoria = new Categoria()
-            {
-                CategoriaId = categoriaDTO.CategoriaId,
-                Nome = categoriaDTO.Nome,
-                ImageUrl = categoriaDTO.ImageUrl
-            };
+            var categoria = categoriaDTO.ToCategoria();
 
             var categoriaAtualizada = _unitOfWork.CategoriaRepository.Update(categoria);
             _unitOfWork.Commit();
 
+            var categoriaAtualizadaDto = categoriaAtualizada.ToCategoriaDTO();
 
-            var categoriaAtualizadaDto = new Categoria()
-            {
-                CategoriaId = categoriaAtualizada.CategoriaId,
-                Nome = categoriaAtualizada.Nome,
-                ImageUrl = categoriaAtualizada.ImageUrl
-            };
 
             return Ok(categoriaAtualizadaDto);
         }
@@ -141,14 +108,9 @@ namespace PrimeiraAPI.Controllers
             var categoriaExcluida = _unitOfWork.CategoriaRepository.Delete(categoria);
             _unitOfWork.Commit();
 
-            var categoriaExcluidaDto = new CategoriaDTO()
-            {
-                CategoriaId = categoriaExcluida.CategoriaId,
-                Nome = categoriaExcluida.Nome,
-                ImageUrl = categoriaExcluida.ImageUrl
-            };
+            categoriaExcluida.ToCategoriaDTO();  
 
-            return Ok(categoriaExcluidaDto);
+            return Ok(categoriaExcluida);
         }
     }
 }
