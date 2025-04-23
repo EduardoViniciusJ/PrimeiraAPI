@@ -1,10 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using PrimeiraAPI.Context;
+using PrimeiraAPI.DTOs.Mappings;
 using PrimeiraAPI.Extensions;
 using PrimeiraAPI.Filters;
 using PrimeiraAPI.Logging;
 using PrimeiraAPI.Repositories;
 using PrimeiraAPI.Repositories.Interfaces;
+using System.Reflection;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,8 +39,8 @@ builder.Logging.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderCon
     LogLevel = LogLevel.Information,
 }));
 
-
-
+// Registrando o automapper
+builder.Services.AddAutoMapper(typeof(ProdutoDTMappingProfile));
 
 
 
