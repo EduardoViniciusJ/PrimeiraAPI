@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Azure;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PrimeiraAPI.Context;
@@ -107,6 +109,38 @@ namespace PrimeiraAPI.Controllers
 
             return Ok(produtoAtualizadoDto);
         }
+
+        [HttpPatch("{id:int}")]
+        public ActionResult<ProdutoDTOUpdateResponse> Patch(int id, JsonPatchDocument<ProdutoDTOUpdateResquest> patchProdutoDTO)
+        {
+            if (patchProdutoDTO is null)
+            {
+                return BadRequest();
+            }
+
+            var produto = _unitOfWork.ProdutoRepository.Get(x => x.ProdutoId == id);
+            if(produto is null)
+            {
+                return NotFound("Produto não encontrado");
+            }   
+
+            var produtoUpdateResquest = _mapper.Map<ProdutoDTOUpdateResquest>(produto); // Mapeia o produto para o DTO
+            patchProdutoDTO.ApplyTo(produtoUpdateResquest, ModelState);
+            
+            _mapper.Map(produtoUpdateResquest, produto); // Mapeia o DTO para o produto 
+            _unitOfWork.ProdutoRepository.Update(produto);
+            _unitOfWork.Commit();
+
+            return Ok(_mapper.Map<ProdutoDTOUpdateResponse>(produto)); // Mapeia o produto atualizado para o DTO de resposta
+
+        }
+
+
+
+
+
+
+
 
         [HttpDelete("{id:int}")]
         public ActionResult<ProdutoDTO> Delete(int id)

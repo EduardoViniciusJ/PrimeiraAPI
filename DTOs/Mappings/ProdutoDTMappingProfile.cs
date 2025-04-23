@@ -9,7 +9,9 @@ namespace PrimeiraAPI.DTOs.Mappings
         {
             CreateMap<Produto, ProdutoDTO>().ReverseMap();
             CreateMap<Categoria, CategoriaDTO>().ReverseMap();
-            
+            CreateMap<Produto, ProdutoDTOUpdateResquest>().ReverseMap();
+            CreateMap<Produto, ProdutoDTOUpdateResponse>().ReverseMap();
+
         }
 
     }
