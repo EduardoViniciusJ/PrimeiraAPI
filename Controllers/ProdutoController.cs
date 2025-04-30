@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using PrimeiraAPI.Context;
 using PrimeiraAPI.DTOs;
 using PrimeiraAPI.Models;
+using PrimeiraAPI.Pagination;
 using PrimeiraAPI.Repositories;
 using PrimeiraAPI.Repositories.Interfaces;
 
@@ -33,7 +34,7 @@ namespace PrimeiraAPI.Controllers
                 return NotFound();
             }
 
-            var produtosDto = _mapper.Map<ProdutoDTO>(produtos);    
+            var produtosDto = _mapper.Map<ProdutoDTO>(produtos);
 
             return Ok(produtosDto);
         }
@@ -49,17 +50,17 @@ namespace PrimeiraAPI.Controllers
                 return NotFound();
             }
 
-            var produtosDto = _mapper.Map<IEnumerable<ProdutoDTO>>(produtos);   
+            var produtosDto = _mapper.Map<IEnumerable<ProdutoDTO>>(produtos);
 
             return Ok(produtosDto);
-       
+
         }
 
         // Acha o produto pelo seu Id 
         [HttpGet("{id:int}", Name = "ObterProduto")]
         public ActionResult<ProdutoDTO> Get(int id)
         {
-            var produto = _unitOfWork.ProdutoRepository.Get(x => x.ProdutoId == id);  
+            var produto = _unitOfWork.ProdutoRepository.Get(x => x.ProdutoId == id);
 
             if (produto is null)
             {
@@ -119,14 +120,14 @@ namespace PrimeiraAPI.Controllers
             }
 
             var produto = _unitOfWork.ProdutoRepository.Get(x => x.ProdutoId == id);
-            if(produto is null)
+            if (produto is null)
             {
                 return NotFound("Produto não encontrado");
-            }   
+            }
 
             var produtoUpdateResquest = _mapper.Map<ProdutoDTOUpdateResquest>(produto); // Mapeia o produto para o DTO
             patchProdutoDTO.ApplyTo(produtoUpdateResquest, ModelState);
-            
+
             _mapper.Map(produtoUpdateResquest, produto); // Mapeia o DTO para o produto 
             _unitOfWork.ProdutoRepository.Update(produto);
             _unitOfWork.Commit();
@@ -135,22 +136,15 @@ namespace PrimeiraAPI.Controllers
 
         }
 
-
-
-
-
-
-
-
         [HttpDelete("{id:int}")]
         public ActionResult<ProdutoDTO> Delete(int id)
         {
             var produto = _unitOfWork.ProdutoRepository.Get(x => x.ProdutoId == id);
-            if(produto is null)
+            if (produto is null)
             {
-                return NotFound("Produto não encontrado");  
+                return NotFound("Produto não encontrado");
             }
-            
+
             var produtoDeltado = _unitOfWork.ProdutoRepository.Delete(produto);
             _unitOfWork.Commit();
 
@@ -159,6 +153,21 @@ namespace PrimeiraAPI.Controllers
             return Ok(produtoDeletadoDto);
 
         }
+
+        [HttpGet("pagination")]
+        public ActionResult<ProdutoDTO> Get([FromQuery] ProdutosParameters produtosParameters)
+        {
+            var produtos = _unitOfWork.ProdutoRepository.GetProdutos(produtosParameters);
+
+            var produtosDto = _mapper.Map<IEnumerable<ProdutoDTO>>(produtos);
+
+            return Ok(produtosDto);
+        }
+
+
+
+
+
 
 
     }
