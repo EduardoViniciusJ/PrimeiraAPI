@@ -7,6 +7,6 @@ namespace PrimeiraAPI.Repositories.Interfaces
     {
         IEnumerable<Produto> GetProdutoPorCategoria(int id);
 
-        IEnumerable<Produto> GetProdutos(ProdutosParameters produtosParameters);
+        PageList<Produto> GetProdutos(ProdutosParameters produtosParameters);
     }
 }

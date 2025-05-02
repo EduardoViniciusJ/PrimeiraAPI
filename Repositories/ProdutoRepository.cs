@@ -25,5 +25,14 @@ namespace PrimeiraAPI.Repositories
                 .Take(produtosParameters.PageSize)
                 .ToList();
         }
+
+        PageList<Produto> IProdutoRepository.GetProdutos(ProdutosParameters produtosParameters)
+        {
+            var produtos = GetAll().OrderBy(p => p.ProdutoId).AsQueryable();
+
+            var produtosOrdernandos = PageList<Produto>.ToPagedList(produtos, produtosParameters.PageNumber, produtosParameters.PageSize);
+
+            return produtosOrdernandos;
+        }
     }
 }

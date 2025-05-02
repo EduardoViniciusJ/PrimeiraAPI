@@ -159,6 +159,17 @@ namespace PrimeiraAPI.Controllers
         {
             var produtos = _unitOfWork.ProdutoRepository.GetProdutos(produtosParameters);
 
+            var metadata = new
+            {
+                produtos.TotalPages,
+                produtos.PageSize,
+                produtos.CurrentPage,
+                produtos.HasNext,
+                produtos.HasPrevious
+            };
+
+            Response.Headers.Add("X-Pagination", System.Text.Json.JsonSerializer.Serialize(metadata)); 
+
             var produtosDto = _mapper.Map<IEnumerable<ProdutoDTO>>(produtos);
 
             return Ok(produtosDto);
