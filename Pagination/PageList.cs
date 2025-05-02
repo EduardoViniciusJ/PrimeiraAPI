@@ -4,7 +4,7 @@
     {
         public int CurrentPage { get; set; } // Representa a página atual   
         public int TotalPages { get; set; } // Total de páginas
-        public int PageSize { get; set; } // Armazena o numero de itens  por página
+        public int PageSize { get; set; } // Armazena o numero de itens por página
         public int TotalCount { get; set; }  // Numero total de elemento na fonte de dados
 
 

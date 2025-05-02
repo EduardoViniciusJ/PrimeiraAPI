@@ -8,6 +8,7 @@ using PrimeiraAPI.DTOs;
 using PrimeiraAPI.DTOs.Mappings;
 using PrimeiraAPI.Filters;
 using PrimeiraAPI.Models;
+using PrimeiraAPI.Pagination;
 using PrimeiraAPI.Repositories;
 using PrimeiraAPI.Repositories.Interfaces;
 
@@ -36,7 +37,7 @@ namespace PrimeiraAPI.Controllers
             var categorias = _unitOfWork.CategoriaRepository.GetAll();
 
             var categoriasDto = categorias.ToCategoriaDTOs();
-            
+
             return Ok(categoriasDto);
         }
 
@@ -44,7 +45,7 @@ namespace PrimeiraAPI.Controllers
         public ActionResult<CategoriaDTO> Get(int id)
         {
             var categoria = _unitOfWork.CategoriaRepository.Get(c => c.CategoriaId == id);
-            if(categoria is null)
+            if (categoria is null)
             {
                 _logger.LogWarning($"Categoria com o id = {id} não encontrada...");
                 return NotFound($"Categoria com  o id = {id} não encontrada...");
@@ -52,7 +53,7 @@ namespace PrimeiraAPI.Controllers
 
             var categoriaDto = categoria.ToCategoriaDTO();
 
-            return Ok(categoriaDto);   
+            return Ok(categoriaDto);
         }
 
         [HttpPost]
@@ -66,11 +67,11 @@ namespace PrimeiraAPI.Controllers
 
             var categoria = categoriaDto.ToCategoria();
 
-             var categoriaCriada = _unitOfWork.CategoriaRepository.Create(categoria);
+            var categoriaCriada = _unitOfWork.CategoriaRepository.Create(categoria);
             _unitOfWork.Commit();
 
-            var novaCategoriaDto =  categoriaCriada.ToCategoriaDTO();
-             
+            var novaCategoriaDto = categoriaCriada.ToCategoriaDTO();
+
             return new CreatedAtRouteResult("ObterCategoria", new { id = categoriaCriada.CategoriaId }, categoriaCriada);
         }
 
@@ -108,9 +109,32 @@ namespace PrimeiraAPI.Controllers
             var categoriaExcluida = _unitOfWork.CategoriaRepository.Delete(categoria);
             _unitOfWork.Commit();
 
-            categoriaExcluida.ToCategoriaDTO();  
+            categoriaExcluida.ToCategoriaDTO();
 
             return Ok(categoriaExcluida);
         }
+
+        [HttpGet("pagination")]
+        public ActionResult<IEnumerable<CategoriaDTO>> Get([FromQuery] CategoriasParameters categoriasParameters)
+        {
+            var categorias = _unitOfWork.CategoriaRepository.GetCategorias(categoriasParameters);
+
+            var metadata = new
+            {
+                categorias.TotalCount,
+                categorias.PageSize,
+                categorias.CurrentPage,
+                categorias.TotalPages,
+                categorias.HasNext,
+                categorias.HasPrevious
+            };
+
+            Response.Headers.Add("X-Pagination", System.Text.Json.JsonSerializer.Serialize(metadata));
+
+            var categoriasDto = categorias.ToCategoriaDTOs();
+
+            return Ok(categoriasDto);
+        }
+
     }
 }
