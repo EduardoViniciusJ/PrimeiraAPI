@@ -154,11 +154,8 @@ namespace PrimeiraAPI.Controllers
 
         }
 
-        [HttpGet("pagination")]
-        public ActionResult<ProdutoDTO> Get([FromQuery] ProdutosParameters produtosParameters)
+        private ActionResult<ProdutoDTO> ObterProdutos(PageList<Produto> produtos)
         {
-            var produtos = _unitOfWork.ProdutoRepository.GetProdutos(produtosParameters);
-
             var metadata = new
             {
                 produtos.TotalPages,
@@ -168,12 +165,30 @@ namespace PrimeiraAPI.Controllers
                 produtos.HasPrevious
             };
 
-            Response.Headers.Add("X-Pagination", System.Text.Json.JsonSerializer.Serialize(metadata)); 
+            Response.Headers.Add("X-Pagination", System.Text.Json.JsonSerializer.Serialize(metadata));
 
             var produtosDto = _mapper.Map<IEnumerable<ProdutoDTO>>(produtos);
 
             return Ok(produtosDto);
         }
+
+
+        [HttpGet("pagination")]
+        public ActionResult<ProdutoDTO> Get([FromQuery] ProdutosParameters produtosParameters)
+        {
+            var produtos = _unitOfWork.ProdutoRepository.GetProdutos(produtosParameters);
+            return ObterProdutos(produtos);
+        }
+        [HttpGet("filter/pagination/preco")]
+        public ActionResult<ProdutoDTO> GetProdutosFilterPreco([FromQuery] ProdutosParameters produtosParameters)
+        {
+
+            var produtos = _unitOfWork.ProdutoRepository.GetProdutosFiltroPreco(produtosParameters);
+            return ObterProdutos(produtos);
+                
+        }
+
+
 
 
 

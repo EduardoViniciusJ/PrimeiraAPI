@@ -8,5 +8,8 @@ namespace PrimeiraAPI.Repositories.Interfaces
         IEnumerable<Produto> GetProdutoPorCategoria(int id);
 
         PageList<Produto> GetProdutos(ProdutosParameters produtosParameters);
+        PageList<Produto> GetProdutosFiltroPreco(ProdutosParameters produtosParameters);
+
+
     }
 }

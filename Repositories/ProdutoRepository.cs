@@ -26,6 +26,29 @@ namespace PrimeiraAPI.Repositories
                 .ToList();
         }
 
+        public PageList<Produto> GetProdutosFiltroPreco(ProdutosParameters produtosParameters)
+        {
+            var produtos = GetAll().AsQueryable();
+
+            if (produtosParameters.Preco.HasValue && !string.IsNullOrEmpty(produtosParameters.PrecoCriterio))
+            {
+                if (produtosParameters.PrecoCriterio.Equals("maior", StringComparison.OrdinalIgnoreCase))
+                {
+                    produtos = produtos.Where(p => p.Preco > produtosParameters.Preco.Value).OrderBy(p => p.Preco);
+                }
+                else if (produtosParameters.PrecoCriterio.Equals("menor", StringComparison.OrdinalIgnoreCase))
+                {
+                    produtos = produtos.Where(p => p.Preco > produtosParameters.Preco.Value).OrderBy(p => p.Preco);
+                }
+                else if (produtosParameters.PrecoCriterio.Equals("igual", StringComparison.OrdinalIgnoreCase))
+                {
+                    produtos = produtos.Where(p => p.Preco > produtosParameters.Preco.Value).OrderBy(p => p.Preco);
+                }
+            }
+            var produtosFiltrados = PageList<Produto>.ToPagedList(produtos, produtosParameters.PageNumber, produtosParameters.PageSize);
+            return produtosFiltrados;
+        }
+
         PageList<Produto> IProdutoRepository.GetProdutos(ProdutosParameters produtosParameters)
         {
             var produtos = GetAll().OrderBy(p => p.ProdutoId).AsQueryable();

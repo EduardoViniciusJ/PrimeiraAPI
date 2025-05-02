@@ -7,7 +7,7 @@ namespace PrimeiraAPI.Repositories.Interfaces
     {
         PageList<Categoria> GetCategorias(CategoriasParameters categoriasParameters);
 
-
+        PageList<Categoria> GetCategoriasFilterNomes(CategoriaFiltroNome categoriasParameters);
 
     }
 }

@@ -18,6 +18,20 @@ namespace PrimeiraAPI.Repositories
             var categoriasOrdenadas = PageList<Categoria>.ToPagedList(categorias, categoriasParameters.PageNumber, categoriasParameters.PageSize);
 
             return categoriasOrdenadas;
+        }
+
+        public PageList<Categoria> GetCategoriasFilterNomes(CategoriaFiltroNome categoriasParameters)
+        {
+            var categorias = GetAll().AsQueryable();
+
+            if (!string.IsNullOrEmpty(categoriasParameters.Nome))
+            {
+                categorias = categorias.Where(c => c.Nome.Contains(categoriasParameters.Nome));
+            }
+
+            var categoriaFiltradas = PageList<Categoria>.ToPagedList(categorias, categoriasParameters.PageNumber, categoriasParameters.PageSize);
+
+            return categoriaFiltradas;
 
         }
     }

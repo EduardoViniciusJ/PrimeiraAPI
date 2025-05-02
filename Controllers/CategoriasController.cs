@@ -114,11 +114,8 @@ namespace PrimeiraAPI.Controllers
             return Ok(categoriaExcluida);
         }
 
-        [HttpGet("pagination")]
-        public ActionResult<IEnumerable<CategoriaDTO>> Get([FromQuery] CategoriasParameters categoriasParameters)
+        private ActionResult<IEnumerable<CategoriaDTO>> ObterCategorias(PageList<Categoria> categorias)
         {
-            var categorias = _unitOfWork.CategoriaRepository.GetCategorias(categoriasParameters);
-
             var metadata = new
             {
                 categorias.TotalCount,
@@ -134,6 +131,20 @@ namespace PrimeiraAPI.Controllers
             var categoriasDto = categorias.ToCategoriaDTOs();
 
             return Ok(categoriasDto);
+        }
+
+        [HttpGet("pagination")]
+        public ActionResult<IEnumerable<CategoriaDTO>> Get([FromQuery] CategoriasParameters categoriasParameters)
+        {
+            var categorias = _unitOfWork.CategoriaRepository.GetCategorias(categoriasParameters);
+            return ObterCategorias(categorias);
+        }
+
+        [HttpGet("filter/pagination/nome")]
+        public ActionResult<IEnumerable<CategoriaDTO>> GetFilter([FromQuery] CategoriaFiltroNome categoriaFiltroNome)
+        {
+            var categorias = _unitOfWork.CategoriaRepository.GetCategoriasFilterNomes(categoriaFiltroNome);
+            return  ObterCategorias(categorias);
         }
 
     }
