@@ -11,25 +11,27 @@ namespace PrimeiraAPI.Repositories
         {
         }
 
-        public PageList<Categoria> GetCategorias(CategoriasParameters categoriasParameters)
+        public async Task<PageList<Categoria>> GetCategoriasAsync(CategoriasParameters categoriasParameters)
         {
-            var  categorias = GetAll().OrderBy(p => p.CategoriaId).AsQueryable();   
+            var categorias = await GetAllAsync();
 
-            var categoriasOrdenadas = PageList<Categoria>.ToPagedList(categorias, categoriasParameters.PageNumber, categoriasParameters.PageSize);
+            var categoriaOrdenadas = categorias.OrderBy(x => x.CategoriaId).AsQueryable();
 
-            return categoriasOrdenadas;
+            var resultado = PageList<Categoria>.ToPagedList(categoriaOrdenadas, categoriasParameters.PageNumber, categoriasParameters.PageSize);
+
+            return resultado;
         }
 
-        public PageList<Categoria> GetCategoriasFilterNomes(CategoriaFiltroNome categoriasParameters)
+        public async Task<PageList<Categoria>> GetCategoriasFilterNomesAsync(CategoriaFiltroNome categoriasParameters)
         {
-            var categorias = GetAll().AsQueryable();
+            var categorias = await GetAllAsync();
 
             if (!string.IsNullOrEmpty(categoriasParameters.Nome))
             {
                 categorias = categorias.Where(c => c.Nome.Contains(categoriasParameters.Nome));
             }
 
-            var categoriaFiltradas = PageList<Categoria>.ToPagedList(categorias, categoriasParameters.PageNumber, categoriasParameters.PageSize);
+            var categoriaFiltradas = PageList<Categoria>.ToPagedList(categorias.AsQueryable(), categoriasParameters.PageNumber, categoriasParameters.PageSize);
 
             return categoriaFiltradas;
 

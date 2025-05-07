@@ -5,9 +5,8 @@ namespace PrimeiraAPI.Repositories.Interfaces
 {
     public interface ICategoriaRepository : IRepository<Categoria>
     {
-        PageList<Categoria> GetCategorias(CategoriasParameters categoriasParameters);
-
-        PageList<Categoria> GetCategoriasFilterNomes(CategoriaFiltroNome categoriasParameters);
+        Task<PageList<Categoria>> GetCategoriasAsync(CategoriasParameters categoriasParameters);
+        Task<PageList<Categoria>> GetCategoriasFilterNomesAsync(CategoriaFiltroNome categoriasParameters);
 
     }
 }

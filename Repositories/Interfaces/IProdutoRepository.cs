@@ -5,10 +5,9 @@ namespace PrimeiraAPI.Repositories.Interfaces
 {
     public interface IProdutoRepository : IRepository<Produto>
     {
-        IEnumerable<Produto> GetProdutoPorCategoria(int id);
-
-        PageList<Produto> GetProdutos(ProdutosParameters produtosParameters);
-        PageList<Produto> GetProdutosFiltroPreco(ProdutosParameters produtosParameters);
+        Task<IEnumerable<Produto>> GetProdutoPorCategoriaAsync(int id);
+        Task<PageList<Produto>> GetProdutosAsync(ProdutosParameters produtosParameters);
+        Task<PageList<Produto>> GetProdutosFiltroPrecoAsync(ProdutosParameters produtosParameters);
 
 
     }

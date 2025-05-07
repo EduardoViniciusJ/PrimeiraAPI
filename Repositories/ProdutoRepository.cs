@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿ using Microsoft.EntityFrameworkCore;
 using PrimeiraAPI.Context;
 using PrimeiraAPI.Models;
 using PrimeiraAPI.Pagination;
@@ -12,23 +12,27 @@ namespace PrimeiraAPI.Repositories
         {
         }
 
-        public IEnumerable<Produto> GetProdutoPorCategoria(int id)
+        public async Task<IEnumerable<Produto>> GetProdutoPorCategoriaAsync(int id)
         {
-            return _context.Produtos.Where(p => p.CategoriaId == id).ToList();
+            var produtos = await GetAllAsync();
+            var produtosCategoria = produtos.Where(p => p.CategoriaId == id);
+
+            return produtosCategoria;
         }
 
-        public IEnumerable<Produto> GetProdutos(ProdutosParameters produtosParameters)
+        public async Task<PageList<Produto>> GetProdutosAsync(ProdutosParameters produtosParameters)
         {
-            return GetAll()
-                .OrderBy(p => p.Nome)
-                .Skip((produtosParameters.PageNumber - 1) * produtosParameters.PageSize)
-                .Take(produtosParameters.PageSize)
-                .ToList();
+            var produtos = await GetAllAsync();
+            var produtosOrdenados = produtos.OrderBy(p => p.Nome).AsQueryable();
+
+            var resultado = PageList<Produto>.ToPagedList(produtosOrdenados, produtosParameters.PageNumber, produtosParameters.PageSize);   
+           
+            return resultado;
         }
 
-        public PageList<Produto> GetProdutosFiltroPreco(ProdutosParameters produtosParameters)
+        public async Task<PageList<Produto>> GetProdutosFiltroPrecoAsync(ProdutosParameters produtosParameters)
         {
-            var produtos = GetAll().AsQueryable();
+            var produtos = await GetAllAsync();
 
             if (produtosParameters.Preco.HasValue && !string.IsNullOrEmpty(produtosParameters.PrecoCriterio))
             {
@@ -45,17 +49,8 @@ namespace PrimeiraAPI.Repositories
                     produtos = produtos.Where(p => p.Preco > produtosParameters.Preco.Value).OrderBy(p => p.Preco);
                 }
             }
-            var produtosFiltrados = PageList<Produto>.ToPagedList(produtos, produtosParameters.PageNumber, produtosParameters.PageSize);
+            var produtosFiltrados = PageList<Produto>.ToPagedList(produtos.AsQueryable(), produtosParameters.PageNumber, produtosParameters.PageSize);
             return produtosFiltrados;
-        }
-
-        PageList<Produto> IProdutoRepository.GetProdutos(ProdutosParameters produtosParameters)
-        {
-            var produtos = GetAll().OrderBy(p => p.ProdutoId).AsQueryable();
-
-            var produtosOrdernandos = PageList<Produto>.ToPagedList(produtos, produtosParameters.PageNumber, produtosParameters.PageSize);
-
-            return produtosOrdernandos;
         }
     }
 }

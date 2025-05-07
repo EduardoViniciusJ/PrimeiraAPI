@@ -32,9 +32,9 @@ namespace PrimeiraAPI.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<CategoriaDTO>> Get()
+        public async Task<ActionResult<IEnumerable<CategoriaDTO>>> Get()
         {
-            var categorias = _unitOfWork.CategoriaRepository.GetAll();
+            var categorias = await _unitOfWork.CategoriaRepository.GetAllAsync();
 
             var categoriasDto = categorias.ToCategoriaDTOs();
 
@@ -42,9 +42,9 @@ namespace PrimeiraAPI.Controllers
         }
 
         [HttpGet("{id:int}", Name = "ObterCategoria")]
-        public ActionResult<CategoriaDTO> Get(int id)
+        public async Task<ActionResult<CategoriaDTO>> Get(int id)
         {
-            var categoria = _unitOfWork.CategoriaRepository.Get(c => c.CategoriaId == id);
+            var categoria = await _unitOfWork.CategoriaRepository.GetAsync(c => c.CategoriaId == id);
             if (categoria is null)
             {
                 _logger.LogWarning($"Categoria com o id = {id} não encontrada...");
@@ -57,7 +57,7 @@ namespace PrimeiraAPI.Controllers
         }
 
         [HttpPost]
-        public ActionResult<CategoriaDTO> Post(CategoriaDTO categoriaDto)
+        public async Task<ActionResult<CategoriaDTO>> Post(CategoriaDTO categoriaDto)
         {
             if (categoriaDto is null)
             {
@@ -68,7 +68,7 @@ namespace PrimeiraAPI.Controllers
             var categoria = categoriaDto.ToCategoria();
 
             var categoriaCriada = _unitOfWork.CategoriaRepository.Create(categoria);
-            _unitOfWork.Commit();
+            await _unitOfWork.CommitAsync();
 
             var novaCategoriaDto = categoriaCriada.ToCategoriaDTO();
 
@@ -76,7 +76,7 @@ namespace PrimeiraAPI.Controllers
         }
 
         [HttpPut("{id:int}")]
-        public ActionResult<CategoriaDTO> Put(int id, CategoriaDTO categoriaDTO)
+        public async Task<ActionResult<CategoriaDTO>> Put(int id, CategoriaDTO categoriaDTO)
         {
             if (id != categoriaDTO.CategoriaId)
             {
@@ -87,7 +87,7 @@ namespace PrimeiraAPI.Controllers
             var categoria = categoriaDTO.ToCategoria();
 
             var categoriaAtualizada = _unitOfWork.CategoriaRepository.Update(categoria);
-            _unitOfWork.Commit();
+            await _unitOfWork.CommitAsync();
 
             var categoriaAtualizadaDto = categoriaAtualizada.ToCategoriaDTO();
 
@@ -96,9 +96,9 @@ namespace PrimeiraAPI.Controllers
         }
 
         [HttpDelete("{id:int}")]
-        public ActionResult<CategoriaDTO> Delete(int id)
+        public async Task<ActionResult<CategoriaDTO>> Delete(int id)
         {
-            var categoria = _unitOfWork.CategoriaRepository.Get(c => c.CategoriaId == id);
+             var categoria = await _unitOfWork.CategoriaRepository.GetAsync(c => c.CategoriaId == id);   
 
             if (categoria is null)
             {
@@ -107,7 +107,7 @@ namespace PrimeiraAPI.Controllers
             }
 
             var categoriaExcluida = _unitOfWork.CategoriaRepository.Delete(categoria);
-            _unitOfWork.Commit();
+            await _unitOfWork.CommitAsync();
 
             categoriaExcluida.ToCategoriaDTO();
 
@@ -134,16 +134,16 @@ namespace PrimeiraAPI.Controllers
         }
 
         [HttpGet("pagination")]
-        public ActionResult<IEnumerable<CategoriaDTO>> Get([FromQuery] CategoriasParameters categoriasParameters)
+        public async Task<ActionResult<IEnumerable<CategoriaDTO>>> Get([FromQuery] CategoriasParameters categoriasParameters)
         {
-            var categorias = _unitOfWork.CategoriaRepository.GetCategorias(categoriasParameters);
+            var categorias = await _unitOfWork.CategoriaRepository.GetCategoriasAsync(categoriasParameters);
             return ObterCategorias(categorias);
         }
 
         [HttpGet("filter/pagination/nome")]
-        public ActionResult<IEnumerable<CategoriaDTO>> GetFilter([FromQuery] CategoriaFiltroNome categoriaFiltroNome)
+        public async Task<ActionResult<IEnumerable<CategoriaDTO>>> GetFilter([FromQuery] CategoriaFiltroNome categoriaFiltroNome)
         {
-            var categorias = _unitOfWork.CategoriaRepository.GetCategoriasFilterNomes(categoriaFiltroNome);
+            var categorias = await _unitOfWork.CategoriaRepository.GetCategoriasFilterNomesAsync(categoriaFiltroNome);
             return  ObterCategorias(categorias);
         }
 
