@@ -1,13 +1,17 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using PrimeiraAPI.Context;
 using PrimeiraAPI.DTOs.Mappings;
 using PrimeiraAPI.Extensions;
 using PrimeiraAPI.Filters;
 using PrimeiraAPI.Logging;
+using PrimeiraAPI.Models;
 using PrimeiraAPI.Repositories;
 using PrimeiraAPI.Repositories.Interfaces;
 using System.Reflection;
+using System.Text;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,8 +30,38 @@ builder.Services.AddControllers(options =>
 
 
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<AppDbContext>()
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
+
+
+var secretKey = builder.Configuration["JWT:SecretKey"]
+    ?? throw new ArgumentException("Invalid secret key");
+
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme; // Define como padrão, ou seja o esquema de autenticação que será utilizado o JWT Bearer 
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme; // Define o esquema de autenticação que será utilizado para validar o token, ou seja pedir autenticação, padrão então JWT Bearer
+}).AddJwtBearer(options =>
+{
+    options.SaveToken = true; // Salva o token no cache
+    options.RequireHttpsMetadata = false; // Não requer HTTPS para ambiente de desenvolvimento loca. 
+    options.TokenValidationParameters = new TokenValidationParameters() // Define o qual será usado para gerar token
+    {
+        ValidateIssuer = true, // Valida o emissor do token
+        ValidateAudience = true, // Valida a audiência do token
+        ValidateLifetime = true, // Valida o tempo de vida do token
+        ValidateIssuerSigningKey = true, // Valida a chave de assinatura do token
+        ClockSkew = TimeSpan.Zero, // Define o tempo de tolerância para o token expirar
+        ValidIssuer = builder.Configuration["JWT:Issuer"], // Define o emissor do token
+        ValidAudience = builder.Configuration["JWT:Audience"], // Define a audiência do token
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)) // Define a chave de assinatura do token
+
+    };
+});
+
+
+
 
 
 builder.Services.AddScoped<ApiLogginFilter>();
@@ -64,7 +98,7 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger(); 
+    app.UseSwagger();
     app.UseSwaggerUI();
     app.ConfigureExceptionHandler();
 }
