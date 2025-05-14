@@ -25,6 +25,9 @@ builder.Services.AddControllers(options =>
 
 
 
+
+
+
 builder.Services.AddScoped<ApiLogginFilter>();
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
@@ -43,11 +46,13 @@ builder.Logging.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderCon
 builder.Services.AddAutoMapper(typeof(ProdutoDTMappingProfile));
 
 
-
-
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication("Bearer").AddJwtBearer();
+
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
