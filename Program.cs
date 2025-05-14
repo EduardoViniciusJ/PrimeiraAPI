@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PrimeiraAPI.Context;
 using PrimeiraAPI.DTOs.Mappings;
@@ -25,7 +26,8 @@ builder.Services.AddControllers(options =>
 
 
 
-
+builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
 
 
 builder.Services.AddScoped<ApiLogginFilter>();

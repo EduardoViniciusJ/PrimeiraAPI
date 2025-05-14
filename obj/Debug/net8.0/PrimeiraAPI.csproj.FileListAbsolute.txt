@@ -289,3 +289,4 @@ C:\Users\Eduardo\source\repos\PrimeiraAPI\PrimeiraAPI\bin\Debug\net8.0\Microsoft
 C:\Users\Eduardo\source\repos\PrimeiraAPI\PrimeiraAPI\bin\Debug\net8.0\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
 C:\Users\Eduardo\source\repos\PrimeiraAPI\PrimeiraAPI\bin\Debug\net8.0\Newtonsoft.Json.Bson.dll
 C:\Users\Eduardo\source\repos\PrimeiraAPI\PrimeiraAPI\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\Eduardo\source\repos\PrimeiraAPI\PrimeiraAPI\bin\Debug\net8.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
