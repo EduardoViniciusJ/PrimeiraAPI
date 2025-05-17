@@ -1,6 +1,7 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace PrimeiraAPI.Services
@@ -32,7 +33,17 @@ namespace PrimeiraAPI.Services
         
         public string GenerateRefreshToken()
         {
-            throw new NotImplementedException();
+            var secureRadomBytes = new byte[128];
+
+            using var random = RandomNumberGenerator.Create(); // Cria um gerador de números aleatórios
+
+            random.GetBytes(secureRadomBytes); // Preenche o array com bytes aleatórios
+
+
+            var refreshToken = Convert.ToBase64String(secureRadomBytes); // Converte os bytes para string
+
+            return refreshToken; // Retorna o token
+
         }
 
         public ClaimsPrincipal GetPrincipalFromExpiredToken(string token, IConfiguration configuration)
