@@ -10,6 +10,7 @@ using PrimeiraAPI.Logging;
 using PrimeiraAPI.Models;
 using PrimeiraAPI.Repositories;
 using PrimeiraAPI.Repositories.Interfaces;
+using PrimeiraAPI.Services;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -69,6 +70,7 @@ builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Respository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<ITokenService, TokenService>();  
 
 
 
