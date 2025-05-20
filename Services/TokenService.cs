@@ -16,21 +16,21 @@ namespace PrimeiraAPI.Services
 
             var signingCredentials = new SigningCredentials(new SymmetricSecurityKey(privateKey), SecurityAlgorithms.HmacSha256Signature); // Cria a chave de assinatura    
 
-            var tokenDescription = new SecurityTokenDescriptor                                                     
+            var tokenDescription = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims), // Adiciona os claims do usuário
                 Expires = DateTime.UtcNow.AddMinutes(configuration.GetSection("JWT").GetValue<double>("TokenValidityInMinutes")),// Tempo de expiração do token
-                Audience = configuration.GetSection("JWT").GetValue<string>("Audience"), 
+                Audience = configuration.GetSection("JWT").GetValue<string>("Audience"),
                 Issuer = configuration.GetSection("JWT").GetValue<string>("Issuer"), // Emissor
                 SigningCredentials = signingCredentials // Chave de assinatura
-            };  
+            };
 
             var tokenHandler = new JwtSecurityTokenHandler(); // Cria o manipulador de token para gerar o token
             var tokenCreate = tokenHandler.CreateJwtSecurityToken(tokenDescription); // Cria o token
 
-            return tokenCreate;  
+            return tokenCreate;
         }
-        
+
         public string GenerateRefreshToken()
         {
             var secureRadomBytes = new byte[128];
@@ -48,7 +48,29 @@ namespace PrimeiraAPI.Services
 
         public ClaimsPrincipal GetPrincipalFromExpiredToken(string token, IConfiguration configuration)
         {
-            throw new NotImplementedException();
+
+            var secretKey = configuration["JWT:SecretKey"] ?? throw new InvalidOperationException("Invalid key"); // Pega a chave secreta
+
+
+            var tokenValidationParameters = new TokenValidationParameters   // Define o que será validado
+            {
+                ValidateAudience = false,
+                ValidateIssuer = false,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+                ValidateLifetime = false,
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();  // Cria um manipulador
+
+            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken); // Valida o token, retorna o usuário e retorna um objeto JwtSecurityToken
+
+            if (securityToken is not JwtSecurityToken jwtSecurityToken || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+            {
+                throw new SecurityTokenException("Invalid token");
+            }
+
+            return principal;
         }
     }
 }
