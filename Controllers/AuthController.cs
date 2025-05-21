@@ -88,7 +88,7 @@ namespace PrimeiraAPI.Controllers
             if (userExist != null) // Verifica se ele existe, caso exista gera um status code 500
             {
                 return StatusCode(StatusCodes.Status500InternalServerError);
-                    
+
             }
 
             // Instancia as informações do usuário e cria um guild do security stamp
@@ -108,6 +108,57 @@ namespace PrimeiraAPI.Controllers
             }
 
             return Ok();
+        }
+
+
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken(TokenModelDTO tokenModelDTO)
+        {
+            if (tokenModelDTO is null)
+            {
+                return BadRequest("Invalid client request");
+            }
+
+            // Extrai os token se estiverem nulos lança uma exceção.
+            string? acessToken = tokenModelDTO.AccessToken ?? throw new ArgumentNullException(nameof(tokenModelDTO));   
+            string? refreshToken = tokenModelDTO.RefreshToken ?? throw new ArgumentNullException(nameof(tokenModelDTO));
+
+            // Extrai os claims do usuário mesmo que o token de acesso esteja expirado.
+            var principal = _tokenService.GetPrincipalFromExpiredToken(acessToken, _configuration);
+
+            // Se não conseguiu extrair as claims, o token é inválido.
+            if (principal == null)
+            {
+                return BadRequest("Invalid access token/refresh token");
+            }
+
+            // Obtém o nome do usuário com base nos claims extraídos.
+            string username = principal.Identity.Name;
+
+            // Busca no banco de dados o usuário.
+            var user = await _userManager.FindByNameAsync(username!);
+
+
+            // Valida se o usuário existe, refresh token recebido é igual o do banco de dados, o tempo do refresh token ainda não expirou
+            if(user == null || user.RefreshToken != refreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
+            {
+                return BadRequest("Invalid access token/refresh token");
+            }
+             
+            // Gera um novo token de acesso com base nas claims do token anterior
+            var newAccessToken = _tokenService.GenerateAccessToken(principal.Claims.ToList(), _configuration); 
+            var newRefreshToken = _tokenService.GenerateRefreshToken();
+
+            // Atualiza o usuário com um novo refresh token no banco de dados.            
+            user.RefreshToken = newRefreshToken;
+            await _userManager.UpdateAsync(user);
+
+            // Retorna os novos tokens para o cliente
+            return new ObjectResult(new
+            {
+                accessToken = new JwtSecurityTokenHandler().WriteToken(newAccessToken),
+                refreshToken = newRefreshToken,
+            });
         }
     }
 }
