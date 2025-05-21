@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Azure;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PrimeiraAPI.DTOs;
 using PrimeiraAPI.Models;
@@ -42,11 +43,11 @@ namespace PrimeiraAPI.Controllers
                 {
                     new Claim(ClaimTypes.Name, loginModelDTO.UserName!),
                     new Claim(ClaimTypes.Email, loginModelDTO.Email!),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), 
-                    
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+
                 };
 
-                foreach(var userRole in userRoles)
+                foreach (var userRole in userRoles)
                 {
                     authClaims.Add(new Claim(ClaimTypes.Role, userRole));  // Adiciona uma claim da lista feita para cada role do usuário.
                 }
@@ -77,6 +78,36 @@ namespace PrimeiraAPI.Controllers
             }
 
             return Unauthorized();
+        }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterModelDTO registerModelDTO)
+        {
+            var userExist = await _userManager.FindByNameAsync(registerModelDTO.Username!); // Procura se o usuário existe
+
+            if (userExist != null) // Verifica se ele existe, caso exista gera um status code 500
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+                    
+            }
+
+            // Instancia as informações do usuário e cria um guild do security stamp
+            ApplicationUser user = new()
+            {
+                Email = registerModelDTO.Email,
+                SecurityStamp = Guid.NewGuid().ToString(),
+                UserName = registerModelDTO.Username,
+            };
+
+            // Cria o usuário com sua senha
+            var result = await _userManager.CreateAsync(user, registerModelDTO.Password);
+
+            if (!result.Succeeded)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+
+            return Ok();
         }
     }
 }
