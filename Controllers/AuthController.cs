@@ -43,7 +43,6 @@ namespace PrimeiraAPI.Controllers
                     var authClaims = new List<Claim>
                     {
                         new Claim(ClaimTypes.Name, loginModelDTO.UserName!),
-                        new Claim(ClaimTypes.Email, loginModelDTO.Email!),
                         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
 
                     };

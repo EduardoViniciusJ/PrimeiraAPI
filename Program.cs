@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using PrimeiraAPI.Context;
 using PrimeiraAPI.DTOs.Mappings;
 using PrimeiraAPI.Extensions;
@@ -54,8 +55,8 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true, // Valida o tempo de vida do token
         ValidateIssuerSigningKey = true, // Valida a chave de assinatura do token
         ClockSkew = TimeSpan.Zero, // Define o tempo de tolerância para o token expirar
-        ValidIssuer = builder.Configuration["JWT:Issuer"], // Define o emissor do token
-        ValidAudience = builder.Configuration["JWT:Audience"], // Define a audiência do token
+        ValidIssuer = builder.Configuration["JWT:ValidIssuer"], // Define o emissor do token
+        ValidAudience = builder.Configuration["JWT:ValidAudience"], // Define a audiência do token
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)) // Define a chave de assinatura do token
 
     };
@@ -70,7 +71,7 @@ builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Respository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<ITokenService, TokenService>();  
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 
 
@@ -86,10 +87,44 @@ builder.Services.AddAutoMapper(typeof(ProdutoDTMappingProfile));
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    // Define a documentação da API (nome e versão)
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "aplicatalog",
+        Version = "v1"
+    });
+
+    // Define o esquema de segurança baseado em JWT Bearer
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization", // Nome do cabeçalho HTTP
+        Type = SecuritySchemeType.ApiKey, // Tipo de autenticação
+        Scheme = "Bearer", // Nome do esquema
+        BearerFormat = "JWT", // Tipo do token (informativo)
+        In = ParameterLocation.Header, // Onde o token será enviado (cabeçalho)
+        Description = "Informe o token JWT no formato: Bearer {seu token}"
+    });
+
+    // Aplica o esquema de segurança aos endpoints
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer" // Usa o esquema "Bearer" definido acima
+                }
+            },
+            new string[] { } // Sem escopos específicos
+        }
+    });
+});
 
 builder.Services.AddAuthorization();
-builder.Services.AddAuthentication("Bearer").AddJwtBearer();
 
 
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -107,6 +142,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();    
 app.UseAuthorization();
 
 app.MapControllers();

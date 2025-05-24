@@ -20,8 +20,8 @@ namespace PrimeiraAPI.Services
             {
                 Subject = new ClaimsIdentity(claims), // Adiciona os claims do usuário
                 Expires = DateTime.UtcNow.AddMinutes(configuration.GetSection("JWT").GetValue<double>("TokenValidityInMinutes")),// Tempo de expiração do token
-                Audience = configuration.GetSection("JWT").GetValue<string>("Audience"),
-                Issuer = configuration.GetSection("JWT").GetValue<string>("Issuer"), // Emissor
+                Audience = configuration.GetSection("JWT").GetValue<string>("ValidAudience"),
+                Issuer = configuration.GetSection("JWT").GetValue<string>("ValidIssuer"), // Emissor
                 SigningCredentials = signingCredentials // Chave de assinatura
             };
 
