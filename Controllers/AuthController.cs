@@ -120,11 +120,11 @@ namespace PrimeiraAPI.Controllers
                 }
 
                 // Extrai os token se estiverem nulos lança uma exceção.
-                string? acessToken = tokenModelDTO.AccessToken ?? throw new ArgumentNullException(nameof(tokenModelDTO));
+                string? accessToken = tokenModelDTO.AccessToken ?? throw new ArgumentNullException(nameof(tokenModelDTO));
                 string? refreshToken = tokenModelDTO.RefreshToken ?? throw new ArgumentNullException(nameof(tokenModelDTO));
 
                 // Extrai os claims do usuário mesmo que o token de acesso esteja expirado.
-                var principal = _tokenService.GetPrincipalFromExpiredToken(acessToken, _configuration);
+                var principal = _tokenService.GetPrincipalFromExpiredToken(accessToken, _configuration);
 
                 // Se não conseguiu extrair as claims, o token é inválido.
                 if (principal == null)
