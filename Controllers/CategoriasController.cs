@@ -1,6 +1,7 @@
 ﻿using Humanizer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using NuGet.Protocol.Core.Types;
@@ -17,6 +18,7 @@ namespace PrimeiraAPI.Controllers
 {
     [Route("[controller]")]
     [ApiController]
+    [EnableRateLimiting("fixedwindow")]
     public class CategoriasController : Controller
     {
 
@@ -33,7 +35,7 @@ namespace PrimeiraAPI.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [DisableRateLimiting]
         public async Task<ActionResult<IEnumerable<CategoriaDTO>>> Get()
         {
             var categorias = await _unitOfWork.CategoriaRepository.GetAllAsync();
@@ -57,7 +59,6 @@ namespace PrimeiraAPI.Controllers
 
             return Ok(categoriaDto);
         }
-
         [HttpPost]
         public async Task<ActionResult<CategoriaDTO>> Post(CategoriaDTO categoriaDto)
         {
