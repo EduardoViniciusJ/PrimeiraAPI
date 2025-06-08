@@ -1,6 +1,9 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\Pagination",
+    "\\Properties"
   ],
+  "SelectedNode": "\\Pagination\\CategoriasParameters.cs",
   "PreviewInSolutionExplorer": false
 }
